@@ -1,0 +1,513 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Blood Donor Application API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: donors
+    description: Donor operations
+  - name: requests
+    description: Blood request operations
+  - name: notifications
+    description: Notification operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /donors:
+    get:
+      operationId: listDonors
+      tags: [donors]
+      summary: List all donors
+      parameters:
+        - name: bloodType
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: available
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of donors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Donor"
+    post:
+      operationId: createDonor
+      tags: [donors]
+      summary: Register a new donor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDonorRequest"
+      responses:
+        "201":
+          description: Donor created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+
+  /donors/{id}:
+    get:
+      operationId: getDonor
+      tags: [donors]
+      summary: Get donor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donor found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+        "404":
+          description: Donor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateDonor
+      tags: [donors]
+      summary: Update donor availability
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDonorRequest"
+      responses:
+        "200":
+          description: Donor updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+
+  /blood-requests:
+    get:
+      operationId: listBloodRequests
+      tags: [requests]
+      summary: List all blood requests
+      parameters:
+        - name: bloodType
+          in: query
+          schema:
+            type: string
+        - name: urgency
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of blood requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BloodRequest"
+    post:
+      operationId: createBloodRequest
+      tags: [requests]
+      summary: Create a blood request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBloodRequestBody"
+      responses:
+        "201":
+          description: Blood request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+
+  /blood-requests/{id}:
+    get:
+      operationId: getBloodRequest
+      tags: [requests]
+      summary: Get blood request by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood request found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateBloodRequest
+      tags: [requests]
+      summary: Update blood request status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBloodRequestBody"
+      responses:
+        "200":
+          description: Blood request updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications for a donor
+      parameters:
+        - name: donorId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: unread
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    put:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [donors]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        database:
+          type: string
+        error:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Donor:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bloodType:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        isAvailable:
+          type: boolean
+        lastDonationDate:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - bloodType
+        - phone
+        - email
+        - city
+        - isAvailable
+        - createdAt
+
+    CreateDonorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        bloodType:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        lastDonationDate:
+          type: string
+          nullable: true
+      required:
+        - name
+        - bloodType
+        - phone
+        - email
+        - city
+
+    UpdateDonorRequest:
+      type: object
+      properties:
+        isAvailable:
+          type: boolean
+        lastDonationDate:
+          type: string
+          nullable: true
+        phone:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+
+    BloodRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientName:
+          type: string
+        bloodType:
+          type: string
+        unitsNeeded:
+          type: integer
+        hospital:
+          type: string
+        city:
+          type: string
+        urgency:
+          type: string
+        status:
+          type: string
+        contactPhone:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - patientName
+        - bloodType
+        - unitsNeeded
+        - hospital
+        - city
+        - urgency
+        - status
+        - contactPhone
+        - createdAt
+        - updatedAt
+
+    CreateBloodRequestBody:
+      type: object
+      properties:
+        patientName:
+          type: string
+        bloodType:
+          type: string
+        unitsNeeded:
+          type: integer
+        hospital:
+          type: string
+        city:
+          type: string
+        urgency:
+          type: string
+          enum: [critical, urgent, normal]
+        contactPhone:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      required:
+        - patientName
+        - bloodType
+        - unitsNeeded
+        - hospital
+        - city
+        - urgency
+        - contactPhone
+
+    UpdateBloodRequestBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [open, fulfilled, cancelled]
+        unitsNeeded:
+          type: integer
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        donorId:
+          type: integer
+        bloodRequestId:
+          type: integer
+        message:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - donorId
+        - bloodRequestId
+        - message
+        - isRead
+        - createdAt
+
+    DashboardStats:
+      type: object
+      properties:
+        totalDonors:
+          type: integer
+        availableDonors:
+          type: integer
+        totalRequests:
+          type: integer
+        openRequests:
+          type: integer
+        criticalRequests:
+          type: integer
+        bloodTypeStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodTypeStat"
+      required:
+        - totalDonors
+        - availableDonors
+        - totalRequests
+        - openRequests
+        - criticalRequests
+        - bloodTypeStats
+
+    BloodTypeStat:
+      type: object
+      properties:
+        bloodType:
+          type: string
+          description: The blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)
+        donorCount:
+          type: integer
+        requestCount:
+          type: integer
+      required:
+        - bloodType
+        - donorCount
+        - requestCount

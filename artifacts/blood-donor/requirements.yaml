@@ -1,0 +1,19 @@
+packages:
+  "recharts": "Used for blood type distribution and stats charts on the dashboard"
+  "framer-motion": "For page transitions, list staggered animations, and interactive micro-animations"
+  "date-fns": "For human-readable date formatting across the application"
+  "react-hook-form": "For robust and performant form state management"
+  "@hookform/resolvers": "For integrating Zod schema validation with React Hook Form"
+
+images:
+  - path: "artifacts/blood-donor/public/images/hero-medical.png"
+    description: "Abstract warm clean medical background, subtle bright red and soft pink gradients, very minimal, modern healthcare vibe with soft light leaks"
+    aspect_ratio: "16:9"
+  - path: "artifacts/blood-donor/public/images/donor-illustration.png"
+    description: "Modern minimalist vector illustration of a heart with a drop of blood, warm colors, humanitarian feeling, transparent background"
+    aspect_ratio: "1:1"
+
+notes:
+  - The application simulates donor authentication via localStorage `donorId`
+  - React Query hooks are imported directly from @workspace/api-client-react
+  - Urgency levels are critical, urgent, and normal
