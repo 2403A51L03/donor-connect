@@ -3,8 +3,8 @@ services:
     name: donor-connect
     runtime: node
     plan: free
-    buildCommand: npm install -g pnpm && pnpm install && pnpm run typecheck && pnpm --filter @workspace/blood-donor build && pnpm --filter @workspace/api-server build
-    startCommand: pnpm start
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run build:prod
+    startCommand: node artifacts/api-server/dist/index.cjs
     envVars:
       - key: NODE_ENV
         value: production
