@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "start": "node artifacts/api-server/dist/index.cjs",
     "dev": "node -r dotenv/config ./dev-start.js",
     "seed:db": "pnpm --filter @workspace/api-server exec tsx ./seed-db.ts",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
