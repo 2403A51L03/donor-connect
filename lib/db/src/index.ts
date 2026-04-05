@@ -38,6 +38,7 @@ if (!databaseUrl) {
 export const pool = new Pool({
   connectionString: databaseUrl,
   ssl: { rejectUnauthorized: false }, // Required for Supabase
+  family: 4, // Force IPv4 to avoid IPv6 connection issues on Render
   max: 5, // Limit connections for cloud databases
   idleTimeoutMillis: 30000, // Close idle connections after 30s
   connectionTimeoutMillis: 10000, // Fail fast if connection takes too long
