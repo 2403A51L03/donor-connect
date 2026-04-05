@@ -27,7 +27,7 @@ router.get("/donors", async (req, res) => {
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(donorsTable.createdAt);
 
-    res.json(
+    return res.json(
       donors.map((d) => ({
         id: d.id,
         name: d.name,
@@ -43,12 +43,12 @@ router.get("/donors", async (req, res) => {
     );
   } catch (err) {
     if (err instanceof ZodError) {
-      return res.status(400).json({ error: err.errors });
+      return res.status(400).json({ error: err.issues });
     }
 
     const error = err instanceof Error ? err : new Error(String(err));
     const cause = (error as any).cause;
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message,
       cause: cause ? String(cause) : undefined,
     });
