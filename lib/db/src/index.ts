@@ -6,8 +6,23 @@ import pg from "pg";
 import * as schema from "./schema";
 
 const __dirname = process.cwd();
+
+function normalizeEnvValue(value?: string): string | undefined {
+  if (!value) return value;
+  let normalized = value.trim();
+  normalized = normalized.replace(/^(?:DATABASE_URL|database_url)\s*=\s*/i, "");
+  normalized = normalized.replace(/^['"]|['"]$/g, "");
+  return normalized;
+}
+
 if (!process.env.DATABASE_URL) {
   config({ path: path.resolve(__dirname, ".env") });
+}
+
+const rawDatabaseUrl = process.env.DATABASE_URL;
+const normalizedDatabaseUrl = normalizeEnvValue(rawDatabaseUrl);
+if (normalizedDatabaseUrl && normalizedDatabaseUrl !== rawDatabaseUrl) {
+  process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
 const { Pool } = pg;

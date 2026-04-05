@@ -5,15 +5,30 @@ import { config } from "dotenv";
 
 const __dirname = process.cwd();
 
+function normalizeEnvValue(value?: string): string | undefined {
+  if (!value) return value;
+  let normalized = value.trim();
+  normalized = normalized.replace(/^(?:DATABASE_URL|database_url)\s*=\s*/i, "");
+  normalized = normalized.replace(/^['"]|['"]$/g, "");
+  return normalized;
+}
+
 // Load .env as fallback if DATABASE_URL is not already set
 if (!process.env.DATABASE_URL) {
   config({ path: path.resolve(__dirname, ".env") });
 }
 
-const maskedDatabaseUrl = process.env.DATABASE_URL
-  ? `${process.env.DATABASE_URL.slice(0, 15)}...${process.env.DATABASE_URL.slice(-15)}`
+const rawDatabaseUrl = process.env.DATABASE_URL;
+const databaseUrl = normalizeEnvValue(rawDatabaseUrl);
+if (databaseUrl && databaseUrl !== rawDatabaseUrl) {
+  console.log("Normalized DATABASE_URL from env value");
+  process.env.DATABASE_URL = databaseUrl;
+}
+
+const maskedDatabaseUrl = databaseUrl
+  ? `${databaseUrl.slice(0, 15)}...${databaseUrl.slice(-15)}`
   : "(not set)";
-console.log(`DATABASE_URL is set: ${process.env.DATABASE_URL ? "yes" : "no"}`);
+console.log(`DATABASE_URL is set: ${databaseUrl ? "yes" : "no"}`);
 console.log(`DATABASE_URL preview: ${maskedDatabaseUrl}`);
 
 async function runMigrations() {
