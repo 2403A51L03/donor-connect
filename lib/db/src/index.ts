@@ -6,7 +6,10 @@ import pg from "pg";
 import * as schema from "./schema";
 
 const __dirname = process.cwd();
-config({ path: path.resolve(__dirname, ".env") });
+// Only load .env in development (it may not exist in production)
+if (process.env.NODE_ENV !== "production") {
+  config({ path: path.resolve(__dirname, ".env") });
+}
 
 const { Pool } = pg;
 

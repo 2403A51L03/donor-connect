@@ -3,7 +3,7 @@ services:
     name: donor-connect
     runtime: node
     plan: free
-    buildCommand: pnpm install && pnpm run build
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run typecheck && pnpm --filter @workspace/blood-donor build && pnpm --filter @workspace/api-server build
     startCommand: pnpm start
     envVars:
       - key: NODE_ENV
@@ -14,3 +14,5 @@ services:
         value: 10000
       - key: API_PORT
         value: 10000
+      - key: BASE_PATH
+        value: "/"
