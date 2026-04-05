@@ -6,8 +6,7 @@ import pg from "pg";
 import * as schema from "./schema";
 
 const __dirname = process.cwd();
-// Only load .env in development (it may not exist in production)
-if (process.env.NODE_ENV !== "production") {
+if (!process.env.DATABASE_URL) {
   config({ path: path.resolve(__dirname, ".env") });
 }
 
