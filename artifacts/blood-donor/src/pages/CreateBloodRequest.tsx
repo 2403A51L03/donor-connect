@@ -7,6 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, Button, Input, Select, Textarea } from "@/components/shared/UI";
 import { Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDonorAuth } from "@/contexts/DonorAuthContext";
+import { Link } from "wouter";
 
 const formSchema = z.object({
   patientName: z.string().min(2, "Patient name is required"),
@@ -25,6 +27,7 @@ export default function CreateBloodRequest() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { isRegistered } = useDonorAuth();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,6 +73,31 @@ export default function CreateBloodRequest() {
           Post an urgent need to notify matching donors in your area.
         </p>
       </div>
+
+      {!isRegistered && (
+        <Card className="mb-6 p-6 bg-blue-50 border-blue-200 border-l-4 border-l-blue-500">
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <h2 className="font-bold text-blue-900 mb-2">Login Required</h2>
+              <p className="text-sm text-blue-800 mb-4">
+                You need to have a donor account to create blood requests. This ensures accountability and allows donors to track your requests.
+              </p>
+              <div className="flex gap-2">
+                <Link href="/login">
+                  <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-100">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/register-donor">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Register as Donor
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <Card className="p-6 md:p-8 border-t-4 border-t-primary">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -138,8 +166,15 @@ export default function CreateBloodRequest() {
           </div>
 
           <div className="pt-4">
-            <Button type="submit" size="lg" className="w-full text-lg" variant="destructive" isLoading={isPending}>
-              Publish Urgent Request
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="w-full text-lg" 
+              variant="destructive" 
+              isLoading={isPending}
+              disabled={!isRegistered}
+            >
+              {!isRegistered ? "Login to Post Request" : "Publish Urgent Request"}
             </Button>
           </div>
         </form>

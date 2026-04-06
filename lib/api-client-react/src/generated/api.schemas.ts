@@ -57,6 +57,8 @@ export interface BloodRequest {
   status: string;
   contactPhone: string;
   notes?: string | null;
+  requestedByDonorId?: number | null;
+  fulfilledByDonorId?: number | null;
   createdAt: string;
   updatedAt: string;
 }

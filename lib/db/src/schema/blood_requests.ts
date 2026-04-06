@@ -10,10 +10,11 @@ export const bloodRequestsTable = pgTable("blood_requests", {
   hospital: text("hospital").notNull(),
   city: text("city").notNull(),
   urgency: text("urgency").notNull().default("normal"),
-  status: text("status").notNull().default("open"),
+  status: text("status").notNull().default("open"), // open, fulfilled, cancelled
   contactPhone: text("contact_phone").notNull(),
   notes: text("notes"),
   requestedByDonorId: integer("requested_by_donor_id"),
+  fulfilledByDonorId: integer("fulfilled_by_donor_id"), // Donor who fulfilled this request
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

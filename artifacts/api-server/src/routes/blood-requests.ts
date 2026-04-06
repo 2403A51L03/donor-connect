@@ -39,6 +39,7 @@ router.get("/blood-requests", async (req, res) => {
         contactPhone: r.contactPhone,
         notes: r.notes ?? null,
         requestedByDonorId: r.requestedByDonorId ?? null,
+        fulfilledByDonorId: r.fulfilledByDonorId ?? null,
         createdAt: r.createdAt.toISOString(),
         updatedAt: r.updatedAt.toISOString(),
       }))
@@ -53,6 +54,12 @@ router.post("/blood-requests", async (req, res) => {
     const body = CreateBloodRequestBody.parse(req.body);
     const donorIdHeader = req.headers["x-donor-id"];
     const requestedByDonorId = donorIdHeader ? parseInt(String(donorIdHeader), 10) || null : null;
+
+    // Verify user is authenticated (has a donor account)
+    if (!requestedByDonorId) {
+      res.status(401).json({ error: "Authentication required. Please log in to create a blood request." });
+      return;
+    }
 
     const [request] = await db
       .insert(bloodRequestsTable)
@@ -101,6 +108,8 @@ router.post("/blood-requests", async (req, res) => {
       status: request.status,
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
+      requestedByDonorId: request.requestedByDonorId ?? null,
+      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });
@@ -134,6 +143,7 @@ router.get("/blood-requests/:id", async (req, res) => {
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
       requestedByDonorId: request.requestedByDonorId ?? null,
+      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });
@@ -160,16 +170,43 @@ router.put("/blood-requests/:id", async (req, res) => {
     const donorIdHeader = req.headers["x-donor-id"];
     const callerDonorId = donorIdHeader ? parseInt(String(donorIdHeader), 10) || null : null;
 
-    if (!callerDonorId || existing.requestedByDonorId === null || callerDonorId !== existing.requestedByDonorId) {
-      res.status(403).json({ error: "You do not have permission to update this request." });
+    if (!callerDonorId) {
+      res.status(401).json({ error: "Authentication required" });
       return;
+    }
+
+    // Authorization logic for status changes
+    if (body.status === "cancelled") {
+      // Only the request owner can cancel
+      if (callerDonorId !== existing.requestedByDonorId) {
+        res.status(403).json({ error: "Only the request owner can cancel this request." });
+        return;
+      }
+    } else if (body.status === "fulfilled") {
+      // Any donor can mark as fulfilled
+      // This is allowed for everyone
     }
 
     const updates: Partial<typeof bloodRequestsTable.$inferInsert> = {
       updatedAt: new Date(),
     };
-    if (body.status !== undefined) updates.status = body.status;
-    if (body.unitsNeeded !== undefined) updates.unitsNeeded = body.unitsNeeded;
+
+    if (body.status !== undefined) {
+      updates.status = body.status;
+      // If marking as fulfilled, record who fulfilled it
+      if (body.status === "fulfilled") {
+        updates.fulfilledByDonorId = callerDonorId;
+      }
+    }
+
+    if (body.unitsNeeded !== undefined) {
+      // Only the request owner can update units needed
+      if (callerDonorId !== existing.requestedByDonorId) {
+        res.status(403).json({ error: "Only the request owner can update units needed." });
+        return;
+      }
+      updates.unitsNeeded = body.unitsNeeded;
+    }
 
     const [request] = await db
       .update(bloodRequestsTable)
@@ -189,6 +226,7 @@ router.put("/blood-requests/:id", async (req, res) => {
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
       requestedByDonorId: request.requestedByDonorId ?? null,
+      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });

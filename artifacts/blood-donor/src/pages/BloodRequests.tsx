@@ -131,7 +131,10 @@ export default function BloodRequests() {
                   <div className="flex flex-col items-end gap-2">
                     <Badge variant={req.urgency as any}>{req.urgency}</Badge>
                     {req.status === "fulfilled" && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Fulfilled</Badge>
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">✓ Fulfilled</Badge>
+                    )}
+                    {req.status === "cancelled" && (
+                      <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">✕ Cancelled</Badge>
                     )}
                   </div>
                 </div>
@@ -159,31 +162,40 @@ export default function BloodRequests() {
                   <p className="text-sm text-muted-foreground mb-4 italic flex-1">"{req.notes}"</p>
                 )}
 
-                {req.status === 'open' && (() => {
-                  const ownerId = (req as any).requestedByDonorId as number | null;
-                  const canEdit = isRegistered && ownerId !== null && ownerId === donorId;
-                  if (!canEdit) return null;
-                  return (
-                    <div className="flex gap-2 mt-auto">
+                {req.status === 'open' && (
+                  <div className="flex gap-2 mt-auto">
+                    {/* Any registered donor can mark as fulfilled */}
+                    {isRegistered && (
                       <Button 
                         variant="outline" 
                         className="flex-1"
                         onClick={() => handleFulfill(req.id)}
                         isLoading={isUpdating}
                       >
-                        <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" /> Fulfilled
+                        <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" /> Mark Fulfilled
                       </Button>
+                    )}
+                    
+                    {/* Only the owner can cancel */}
+                    {isRegistered && (req as any).requestedByDonorId === donorId && (
                       <Button
                         variant="ghost"
                         className="flex-1 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                         onClick={() => handleCancel(req.id)}
                         disabled={isUpdating}
                       >
-                        Cancel
+                        Cancel Request
                       </Button>
-                    </div>
-                  );
-                })()}
+                    )}
+
+                    {/* Prompt to login if not registered */}
+                    {!isRegistered && (
+                      <div className="text-sm text-muted-foreground italic mt-2">
+                        <Link href="/login" className="text-primary font-medium hover:underline">Login or register</Link> to respond to requests
+                      </div>
+                    )}
+                  </div>
+                )}
               </Card>
             </motion.div>
           ))}

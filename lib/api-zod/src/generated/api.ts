@@ -121,6 +121,8 @@ export const ListBloodRequestsResponseItem = zod.object({
   status: zod.string(),
   contactPhone: zod.string(),
   notes: zod.string().nullish(),
+  requestedByDonorId: zod.number().nullish(),
+  fulfilledByDonorId: zod.number().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
 });
@@ -160,6 +162,8 @@ export const GetBloodRequestResponse = zod.object({
   status: zod.string(),
   contactPhone: zod.string(),
   notes: zod.string().nullish(),
+  requestedByDonorId: zod.number().nullish(),
+  fulfilledByDonorId: zod.number().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
 });
@@ -187,6 +191,8 @@ export const UpdateBloodRequestResponse = zod.object({
   status: zod.string(),
   contactPhone: zod.string(),
   notes: zod.string().nullish(),
+  requestedByDonorId: zod.number().nullish(),
+  fulfilledByDonorId: zod.number().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
 });

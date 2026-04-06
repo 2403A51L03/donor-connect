@@ -393,6 +393,12 @@ components:
         notes:
           type: string
           nullable: true
+        requestedByDonorId:
+          type: integer
+          nullable: true
+        fulfilledByDonorId:
+          type: integer
+          nullable: true
         createdAt:
           type: string
         updatedAt:
