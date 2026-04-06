@@ -163,12 +163,12 @@ export default function BloodRequests() {
                 )}
 
                 {req.status === 'open' && (
-                  <div className="flex gap-2 mt-auto">
-                    {/* Any registered donor can mark as fulfilled */}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    {/* Any registered donor with matching blood type can mark as fulfilled */}
                     {isRegistered && (
                       <Button 
                         variant="outline" 
-                        className="flex-1"
+                        className="w-full"
                         onClick={() => handleFulfill(req.id)}
                         isLoading={isUpdating}
                       >
@@ -180,7 +180,7 @@ export default function BloodRequests() {
                     {isRegistered && (req as any).requestedByDonorId === donorId && (
                       <Button
                         variant="ghost"
-                        className="flex-1 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                        className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                         onClick={() => handleCancel(req.id)}
                         disabled={isUpdating}
                       >
@@ -190,8 +190,8 @@ export default function BloodRequests() {
 
                     {/* Prompt to login if not registered */}
                     {!isRegistered && (
-                      <div className="text-sm text-muted-foreground italic mt-2">
-                        <Link href="/login" className="text-primary font-medium hover:underline">Login or register</Link> to respond to requests
+                      <div className="text-sm text-muted-foreground italic">
+                        <Link href="/login" className="text-primary font-medium hover:underline">Login</Link> to respond to requests
                       </div>
                     )}
                   </div>

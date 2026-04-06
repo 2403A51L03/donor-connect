@@ -39,7 +39,6 @@ router.get("/blood-requests", async (req, res) => {
         contactPhone: r.contactPhone,
         notes: r.notes ?? null,
         requestedByDonorId: r.requestedByDonorId ?? null,
-        fulfilledByDonorId: r.fulfilledByDonorId ?? null,
         createdAt: r.createdAt.toISOString(),
         updatedAt: r.updatedAt.toISOString(),
       }))
@@ -109,7 +108,6 @@ router.post("/blood-requests", async (req, res) => {
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
       requestedByDonorId: request.requestedByDonorId ?? null,
-      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });
@@ -143,7 +141,6 @@ router.get("/blood-requests/:id", async (req, res) => {
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
       requestedByDonorId: request.requestedByDonorId ?? null,
-      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });
@@ -183,8 +180,21 @@ router.put("/blood-requests/:id", async (req, res) => {
         return;
       }
     } else if (body.status === "fulfilled") {
-      // Any donor can mark as fulfilled
-      // This is allowed for everyone
+      // Donors with matching blood type can mark as fulfilled (check donor exists with that blood type)
+      const [donor] = await db
+        .select()
+        .from(donorsTable)
+        .where(eq(donorsTable.id, callerDonorId));
+
+      if (!donor) {
+        res.status(404).json({ error: "Donor profile not found" });
+        return;
+      }
+
+      if (donor.bloodType !== existing.bloodType) {
+        res.status(403).json({ error: `You can only fulfill requests for your blood type (${donor.bloodType})` });
+        return;
+      }
     }
 
     const updates: Partial<typeof bloodRequestsTable.$inferInsert> = {
@@ -193,10 +203,6 @@ router.put("/blood-requests/:id", async (req, res) => {
 
     if (body.status !== undefined) {
       updates.status = body.status;
-      // If marking as fulfilled, record who fulfilled it
-      if (body.status === "fulfilled") {
-        updates.fulfilledByDonorId = callerDonorId;
-      }
     }
 
     if (body.unitsNeeded !== undefined) {
@@ -226,7 +232,6 @@ router.put("/blood-requests/:id", async (req, res) => {
       contactPhone: request.contactPhone,
       notes: request.notes ?? null,
       requestedByDonorId: request.requestedByDonorId ?? null,
-      fulfilledByDonorId: request.fulfilledByDonorId ?? null,
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString(),
     });

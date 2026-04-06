@@ -14,7 +14,6 @@ export const bloodRequestsTable = pgTable("blood_requests", {
   contactPhone: text("contact_phone").notNull(),
   notes: text("notes"),
   requestedByDonorId: integer("requested_by_donor_id"),
-  fulfilledByDonorId: integer("fulfilled_by_donor_id"), // Donor who fulfilled this request
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
