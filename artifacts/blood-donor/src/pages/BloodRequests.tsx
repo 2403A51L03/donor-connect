@@ -12,7 +12,7 @@ import { useDonorAuth } from "@/contexts/DonorAuthContext";
 export default function BloodRequests() {
   const [bloodType, setBloodType] = useState("");
   const [urgency, setUrgency] = useState("");
-  const [status, setStatus] = useState("open");
+  const [status, setStatus] = useState(""); // Show all statuses by default
 
   const { donorId, isRegistered } = useDonorAuth();
   const queryClient = useQueryClient();

@@ -48,10 +48,11 @@ export default function CreateBloodRequest() {
         });
         setLocation("/requests");
       },
-      onError: () => {
+      onError: (error: any) => {
+        const errorMsg = error?.response?.data?.error || error?.message || "Failed to create blood request. Please try again.";
         toast({
           title: "Error",
-          description: "Failed to create blood request. Please try again.",
+          description: errorMsg,
           variant: "destructive",
         });
       }
