@@ -58,7 +58,7 @@ This project was developed as part of the AI-Assisted Coding course (3-2 semeste
    ```
 
 2. **Database Setup**:
-   - Create a PostgreSQL database (local or use Neon.tech)
+   - Create a PostgreSQL database (local or use supabase)
    - Set `DATABASE_URL` in your `.env` file
 
 3. **Run Database Migrations**:
@@ -125,18 +125,18 @@ This project was developed using AI assistance throughout the development proces
 
 ## Deployment
 
-### Backend (Railway)
-1. Connect your GitHub repository to Railway
+### Backend
+1. Connect your GitHub repository to Supabase
 2. Set environment variables: `DATABASE_URL` and `PORT=5000`
 3. Deploy the `artifacts/api-server` directory
 
-### Frontend (Vercel)
-1. Import the repository to Vercel
+### Frontend
+1. Import the repository to Render
 2. Configure build settings:
    - Root directory: `artifacts/blood-donor`
    - Build command: `pnpm run build`
    - Output directory: `dist/public`
-3. Set `VITE_API_BASE_URL` to your Railway API URL
+3. Set `VITE_API_BASE_URL` to your Supabase API URL
 
 ### Database
 - **Neon.tech**: Recommended for PostgreSQL hosting
